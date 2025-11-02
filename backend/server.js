@@ -15,12 +15,13 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-// Update static file serving to point to frontend directory
-app.use(express.static(path.join(__dirname, "..", "frontend")));
+// Update static file serving to point to root directory
+app.use(express.static(path.join(__dirname, "..")));
 
-// MongoDB connection
+// MongoDB connection - Use environment variable for Render deployment
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/fixtrack";
 mongoose
-  .connect("mongodb://127.0.0.1:27017/fixtrack")
+  .connect(MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.log(err));
 
@@ -201,24 +202,41 @@ app.get('/api/admin/technicians', async (req, res) => {
   }
 });
 
-// Default route to serve index.html from frontend directory
+// Default route to serve index.html from root directory
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+  // Handle case where file might not exist in production
+  try {
+    res.sendFile(path.join(__dirname, "..", "index.html"));
+  } catch (err) {
+    res.status(404).send("File not found");
+  }
 });
 
-// Route to serve login.html from frontend directory
+// Route to serve login.html from root directory
 app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "login.html"));
+  try {
+    res.sendFile(path.join(__dirname, "..", "login.html"));
+  } catch (err) {
+    res.status(404).send("File not found");
+  }
 });
 
-// Route to serve register.html from frontend directory
+// Route to serve register.html from root directory
 app.get("/register", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "register.html"));
+  try {
+    res.sendFile(path.join(__dirname, "..", "register.html"));
+  } catch (err) {
+    res.status(404).send("File not found");
+  }
 });
 
-// Route to serve main.html from frontend directory
+// Route to serve main.html from root directory
 app.get("/main", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "main.html"));
+  try {
+    res.sendFile(path.join(__dirname, "..", "main.html"));
+  } catch (err) {
+    res.status(404).send("File not found");
+  }
 });
 
 // Start server
